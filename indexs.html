@@ -1,0 +1,97 @@
+<!--
+ * @Author: tanshaobo
+ * @Date: 2023-02-20 09:15:35
+ * @LastEditors: tanshaobo
+ * @LastEditTime: 2023-03-01 15:03:47
+ * @Description: file content
+ * @FilePath: \新建文件夹\indexs.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="./01_openDB.js"></script>
+  <script src="./02_closeDB.js"></script>
+  <script src="./03_addData.js"></script>
+  <script src="./04_getDataByKeys.js"></script>
+  <script src="./05_getDataByCursor.js"></script>
+  <script src="./06_getDataByIndex.js"></script>
+  <script src="./07_getDataByCursorAndIndex.js"></script>
+  <script src="./08_getDataByIndexAndPage.js"></script>
+  <script src="./09_updateDB.js"></script>
+  <script src="./10_deleteDataByKeyPath.js"></script>
+  <script src="./11_deleteDataByIndexAndCursor.js"></script>
+
+  <script>
+    const testData = [
+      {code:'001',name:'零零一',link:'baidu'},
+      {code:'002',name:'零零二',link:'bing'}
+    ]
+    // 添加数据
+    openDB('devDB').then((res)=>{
+      testData.forEach(item => {
+        addData(res, 'signalChat', item)
+      })
+    })
+    // 根据主键查询数据
+    openDB('devDB').then((res)=>getDataByKey(res, 'signalChat', 1)).then(res=>{
+      console.log('主键查询', res)
+    })
+
+    // 根据游标查询数据
+    openDB('devDB').then(res=>getDataByCursor(res, 'signalChat')).then(res=>{
+      console.log('游标查询', res)
+    })
+
+    // 根据索引查询数据
+    openDB('devDB').then(res => getDataByIndex(res, 'signalChat', 'id', 1)).then(res => {
+      console.log('索引查询', res)
+    })
+
+    // 根据索引和游标查询数据
+    openDB('devDB').then(res => getDataByCursorAndIndex(res, 'signalChat', 'id', 2)).then(res => {
+      console.log('游标索引查询', res)
+    })
+
+    // 根据索引和分页查询数据
+    openDB('devDB').then(res => getDataByIndexAndPage(res, 'signalChat', 'link','bing', 2, 5)).then(res => {
+      console.log('索引和分页查询', res)
+    })
+
+    // 更新数据
+    const newData = { code:'001',name:'零零三',link:'bing', id: 5 }
+    openDB('devDB').then(res => updateDB(res, 'signalChat', newData)).then(res=>{
+      console.log(res)
+    })
+
+    // 删除数据
+    openDB('devDB').then(res => deleteDataByKeyPath(res, 'signalChat', 4)).then(res =>{
+      console.log(res)
+    })
+
+    // 删除数据（使用索引和游标）
+    openDB('devDB').then(res => deleteDataByIndexAndCursor(res, 'signalChat', 'id', 9)).then(res=>{
+      console.log(res)
+    })
+    openDB('devDB').then(res => deleteDataByIndexAndCursor(res, 'signalChat', 'link', 'baidu')).then(res=>{
+      console.log(res)
+    })
+
+    // 关闭数据库 
+    const tick = setTimeout(()=> {
+      openDB('devDB').then(res => {
+        console.log('关闭数据库', res)
+        closeDB(res)
+        clearTimeout(tick)
+      })
+    }, 5000)
+
+
+  </script>
+</body>
+</html>

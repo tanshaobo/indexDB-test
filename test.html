@@ -1,0 +1,157 @@
+<!--
+ * @Author: tanshaobo
+ * @Date: 2023-02-18 13:40:04
+ * @LastEditors: tanshaobo
+ * @LastEditTime: 2023-02-21 10:20:49
+ * @Description: file content
+ * @FilePath: \新建文件夹\test.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const arr = [
+      'hcbh01', 'bh_2', 'data_1', 'bh_3', 'bh_5', 'bh_6','abc', '往子','',
+      '阿贝多','芭芭拉', '重云','迪卢克','甘雨','胡桃','钟离',
+      "606","701","602","605-1","605-4","607-2","608-2",
+      "609","701-1","707-1","B603","B604-1","B604-2","B604-3","C603","C604-1",
+      "C604-2","E603","E704","S604","S703","X703","X704-2","710","0","708-1",
+      // "708-2","708-3","708-4","708-5","711-9","A708","B708-11",
+      // "B708-18","B708-2","B708-20","B708-21","711-4",
+      // "B708-24","B708-3","B708-5","B708-6","B708-8","B708-9",
+      "B710-16","C710-1","C710-1-1","C710-2","C710-3","E708-1","E708-2",
+      // "E708-4","F708-1","F708-10","F708-11","F708-14","F708-2","F708-9",
+      "S708-1","S708-2","X708","711","1","12","711-1","711-3","711-5",
+      "711-8","712","721","722","B601","JZW101","X604-1","XQ101",
+      '7-1','7'
+    ]
+    let d = JSON.parse(JSON.stringify(arr))
+const r = arraySortByName(arr)
+console.log(d.sort())
+console.log(r)
+function arraySortByName(list) {
+  // 前在前return 1,后在前return -1
+  if (list === undefined || list === null) return []
+  list.sort((a, b) => { // b是数组前一个，a是数组后一个
+    let strA = a;
+    let strB = b;
+    // 谁为非法值谁在后面
+    if (isSpecialChar(strA) || strA === undefined || strA === null || strA === '' || strA === ' ' || strA === '　') {
+      return 1
+    }
+    // if (strB === undefined || strB === null || strB === '' || strB === ' ' || strB === '　') {
+    if (isSpecialChar(strB) || strB === undefined || strB === null || strB === '' || strB === ' ' || strB === '　') {
+      return -1
+    }
+    let mB = strB.match(/^\d+/g);
+    let mA = strA.match(/^\d+/g);
+    // 全部都有数字
+    if(mB && mA) {
+      let nA = strA.match(/^\d+$/g)
+      let nB = strB.match(/^\d+$/g)
+      if(nA&&nB){
+        return parseInt(mB[mB.length-1]) > parseInt(mA[mA.length-1]) ? -1 : 1;
+      }else if(nA || nB){
+        if(nB) {
+        return 1;
+      } else if(nA) {
+        return -1;
+      }
+      }else{
+        const charAry = strA.split('')
+        for (const i in charAry) {
+          if ((charCompare(strA[i], strB[i]) !== 0)) {
+            return charCompare(strA[i], strB[i])
+          }
+        }
+        // 如果通过上面的循环对比还比不出来，就无解了，直接返回-1
+        return -1
+      }
+    }
+    // 有一个有数字
+    else if(mB || mA) {
+      if(mB) {
+        return 1;
+      } else if(mA) {
+        return -1;
+      }
+    }
+    // 全都无数字
+    else {
+      // 如果a和b中全部都是汉字，或者全部都非汉字
+      if (
+        (
+          strA.split('').every(char => notChinese(char)) && 
+          strB.split('').every(char => notChinese(char))
+        ) || 
+        (
+          strA.split('').every(char => !notChinese(char)) && 
+          strB.split('').every(char => !notChinese(char))
+        )
+      ) {
+        return strA.localeCompare(strB)
+      } else {
+        const charAry = strA.split('')
+        for (const i in charAry) {
+          if ((charCompare(strA[i], strB[i]) !== 0)) {
+            return charCompare(strA[i], strB[i])
+          }
+        }
+        // 如果通过上面的循环对比还比不出来，就无解了，直接返回-1
+        return -1
+      }
+    }
+  })
+  return list
+}
+function charCompare(charA, charB) {
+  
+  // 谁为非法值谁在后面
+  // if (charA === undefined || charA === null || charA === '' || charA === ' ' || charA === '　') {
+  if (isSpecialChar(charA) || charA === undefined || charA === null || charA === '' || charA === ' ' || charA === '　') {
+    return 1
+  }
+  if (isSpecialChar(charB) || charB === undefined || charB === null || charB === '' || charB === ' ' || charB === '　') {
+    return -1
+  }
+  // 如果都为英文或者都为汉字则直接对比
+  if ((notChinese(charA) && notChinese(charB)) || (!notChinese(charA) && !notChinese(charB))) {
+    return charA.localeCompare(charB)
+  } else {
+    // 如果不都为英文或者汉字，就肯定有一个是英文，如果a是英文，返回-1，a在前，否则就是b是英文，b在前
+    if (notChinese(charA)) {
+      return -1
+    } else {
+      return 1
+    }
+  }
+}
+ 
+function notChinese(char) {
+  if(!char){
+    return false
+  }
+  const charCode = char.charCodeAt(0)
+  return charCode > 31 && charCode < 128
+}
+
+function isSpecialChar(char){
+  if(!char){
+    return false
+  }
+  const charCode = char.charCodeAt(0)
+  return 
+    (charCode > 31 && charCode < 48) || 
+    (charCode > 57 && charCode < 65) || 
+    (charCode > 90 && charCode < 97) || 
+    (charCode > 122 && charCode < 128)
+}
+  </script>
+</body>
+</html>

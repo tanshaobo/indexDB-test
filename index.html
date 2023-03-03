@@ -1,0 +1,92 @@
+<!--
+ * @Author: tanshaobo
+ * @Date: 2022-11-18 10:44:01
+ * @LastEditors: tanshaobo
+ * @LastEditTime: 2023-02-20 09:16:10
+ * @Description: file content
+ * @FilePath: \新建文件夹\index.html
+-->
+<!--
+ * @Author: tanshaobo
+ * @Date: 2022-11-18 10:44:01
+ * @LastEditors: tanshaobo
+ * @LastEditTime: 2023-02-18 17:18:21
+ * @Description: file content
+ * @FilePath: \新建文件夹\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- <button onclick="cerateDB()">createDB</button>
+  <button onclick="addTestData()">add</button>
+  <button onclick="searchData()">search</button>
+  <script src="./openDB.js"></script>
+  <script src="./addData.js"></script>
+  <script src="./getDataByKeys.js"></script> -->
+  <script>
+    // link https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API/Using_IndexedDB#%E5%85%B3%E4%BA%8E%E6%9C%AC%E6%96%87%E6%A1%A3
+    // 判断当前浏览器是否支持indexedDB
+    window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexDB || window.msIndexDB
+    console.log(indexedDB)
+    // 异步事务使用数据库中的事件对象属性
+    window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction
+    console.log(IDBTransaction)
+    // 一些数据类型上的键的连续间隔
+    window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
+
+    const customerData = [
+      { id: "444-44-4444", name: "Bill", age: 35, email: "bill@company.com" },
+      { id: "555-55-5555", name: "Donna", age: 32, email: "donna@home.org" }
+    ];
+
+    // 打开数据库
+    const dbName = 'the_name'
+    let request1 = indexedDB.open(dbName, 1)
+    request1.onsuccess =   function(event){
+      console.log('success', event)
+      console.log('success', event.target.result)
+    }
+    request1.onerror = function(event){
+      console.log('error',event)
+      return '打开数据库失败'
+    }
+    const promise = indexedDB.databases()
+    promise.then((databases) => {
+      console.log(databases)
+    })
+    request1.onupgradeneeded = function(event){
+      let db, objectStore
+      db = event.target.result
+      // 建立对象仓库来存储信息，指定id为键路径
+      objectStore = db.createObjectStore('customers', { keyPath: 'id' })
+      console.log(db, objectStore)
+      // 建立索引  name与age会重复 不能使用unique  id与email不会重复，可以使用unique
+      objectStore.createIndex('id', 'id', {unique: true})
+      objectStore.createIndex('age', 'age', {unique: false})
+      
+      objectStore.transaction.oncomplete = function(event){
+        var customerObjectStore = db.transaction('customers', 'readwrite').objectStore('customers');
+        customerData.forEach((customer) => {
+          customerObjectStore.add(customer)
+        })
+      }
+    }
+  
+    // 带有键生成器的
+    let request2 = indexedDB.open(dbName, 2)
+    request2.onupgradeneeded = function(e){
+      let db = e.target.result
+      let objStore = db.createObjectStore('names', { autoIncrement: true })
+      customerData.forEach(c => {
+        objStore.add(c.name)
+      })
+    }
+  </script>
+</body>
+</html>
